@@ -77,14 +77,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Resilience Capital — Climate-Adaptive Micro-Lending" },
+      { name: "description", content: "Climate risk isn't a decline reason. It's our edge. Adaptive loans for off-grid solar vendors in drought-exposed regions." },
+      { name: "author", content: "Resilience Capital" },
+      { property: "og:title", content: "Resilience Capital" },
+      { property: "og:description", content: "We don't ignore climate risk. We model it." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:site", content: "@ResilienceCap" },
     ],
     links: [
       {
