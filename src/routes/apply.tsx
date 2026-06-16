@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { ArrowRight, Camera, Check, ChevronRight, Loader2, MapPin, Phone, Sparkles, Sun } from "lucide-react";
 import { SiteFooter, SiteNav } from "@/components/SiteNav";
 
