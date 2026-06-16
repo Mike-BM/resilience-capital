@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ArrowRight, Camera, Check, ChevronRight, Loader2, MapPin, Phone, Sparkles, Sun } from "lucide-react";
 import { SiteFooter, SiteNav } from "@/components/SiteNav";
 
@@ -15,8 +15,27 @@ export const Route = createFileRoute("/apply")({
 
 type Step = "form" | "scoring" | "approved" | "disbursed";
 
+type LoanRecord = {
+  id: string;
+  vendor: string;
+  location: string;
+  msisdn: string;
+  amount: number;
+  units: number;
+  score: number;
+  apr: number;
+  totalRepayment: number;
+  createdAt: string;
+  status: "approved" | "disbursed";
+};
+
+function generateLoanId() {
+  return "RC-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+}
+
 function ApplyPage() {
   const [step, setStep] = useState<Step>("form");
+  const [loan, setLoan] = useState<LoanRecord | null>(null);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -30,10 +49,46 @@ function ApplyPage() {
       </section>
 
       <section className="mx-auto max-w-5xl px-6 py-12">
-        {step === "form" && <FormStep onSubmit={() => setStep("scoring")} />}
+        {step === "form" && (
+          <FormStep
+            onSubmit={(draft) => {
+              const record: LoanRecord = {
+                id: generateLoanId(),
+                ...draft,
+                score: 82,
+                apr: 12,
+                totalRepayment: 2400,
+                createdAt: new Date().toISOString(),
+                status: "approved",
+              };
+              try {
+                const existing = JSON.parse(localStorage.getItem("rc_loans") ?? "[]");
+                localStorage.setItem("rc_loans", JSON.stringify([record, ...existing]));
+              } catch {}
+              setLoan(record);
+              setStep("scoring");
+            }}
+          />
+        )}
         {step === "scoring" && <ScoringStep onDone={() => setStep("approved")} />}
-        {step === "approved" && <ApprovedStep onDisburse={() => setStep("disbursed")} />}
-        {step === "disbursed" && <DisbursedStep />}
+        {step === "approved" && loan && (
+          <ApprovedStep
+            loan={loan}
+            onDisburse={() => {
+              const updated = { ...loan, status: "disbursed" as const };
+              setLoan(updated);
+              try {
+                const all = JSON.parse(localStorage.getItem("rc_loans") ?? "[]");
+                localStorage.setItem(
+                  "rc_loans",
+                  JSON.stringify(all.map((l: LoanRecord) => (l.id === updated.id ? updated : l))),
+                );
+              } catch {}
+              setStep("disbursed");
+            }}
+          />
+        )}
+        {step === "disbursed" && loan && <DisbursedStep loan={loan} />}
       </section>
       <SiteFooter />
     </div>
@@ -72,9 +127,10 @@ function Card({ children }: { children: React.ReactNode }) {
   return <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">{children}</div>;
 }
 
-function FormStep({ onSubmit }: { onSubmit: () => void }) {
+function FormStep({ onSubmit }: { onSubmit: (draft: { vendor: string; location: string; msisdn: string; amount: number; units: number }) => void }) {
   const [name, setName] = useState("James Ochieng");
   const [location, setLocation] = useState("Turkana, Kenya");
+  const [msisdn, setMsisdn] = useState("+254 712 894 102");
   const [amount, setAmount] = useState(2000);
   const [units, setUnits] = useState(50);
 
@@ -85,7 +141,7 @@ function FormStep({ onSubmit }: { onSubmit: () => void }) {
           className="space-y-5"
           onSubmit={(e) => {
             e.preventDefault();
-            onSubmit();
+            onSubmit({ vendor: name, location, msisdn, amount, units });
           }}
         >
           <Field label="Full name">
@@ -101,7 +157,7 @@ function FormStep({ onSubmit }: { onSubmit: () => void }) {
             <Field label="M-Pesa number">
               <div className="relative">
                 <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <input defaultValue="+254 712 894 102" className="w-full rounded-md border border-input bg-background py-2.5 pl-9 pr-3 text-sm" />
+                <input value={msisdn} onChange={(e) => setMsisdn(e.target.value)} className="w-full rounded-md border border-input bg-background py-2.5 pl-9 pr-3 text-sm" />
               </div>
             </Field>
           </div>
