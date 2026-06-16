@@ -132,18 +132,33 @@ function Legend({ swatch, label }: { swatch: string; label: string }) {
 }
 
 // [lng, lat] for Kenya vendor hubs
-const vendorPins: { name: string; coords: [number, number]; score: number; loan: number }[] = [
-  { name: "Turkana", coords: [35.6, 3.12], score: 62, loan: 2000 },
-  { name: "Marsabit", coords: [37.99, 2.33], score: 58, loan: 1500 },
-  { name: "Garissa", coords: [39.66, -0.45], score: 64, loan: 1400 },
-  { name: "Isiolo", coords: [37.58, 0.35], score: 67, loan: 1800 },
-  { name: "Nakuru", coords: [36.07, -0.30], score: 88, loan: 3200 },
-  { name: "Nairobi", coords: [36.82, -1.29], score: 91, loan: 4100 },
-  { name: "Machakos", coords: [37.27, -1.52], score: 71, loan: 1800 },
-  { name: "Narok", coords: [35.87, -1.08], score: 84, loan: 2600 },
-  { name: "Kajiado", coords: [36.78, -1.85], score: 54, loan: 900 },
-  { name: "Mombasa", coords: [39.66, -4.04], score: 86, loan: 2400 },
+type VendorStatus = "Current" | "Discount window" | "Parametric paid" | "Late";
+type VendorPin = { name: string; coords: [number, number]; score: number; loan: number; status: VendorStatus };
+const vendorPins: VendorPin[] = [
+  { name: "Turkana", coords: [35.6, 3.12], score: 62, loan: 2000, status: "Discount window" },
+  { name: "Marsabit", coords: [37.99, 2.33], score: 58, loan: 1500, status: "Discount window" },
+  { name: "Garissa", coords: [39.66, -0.45], score: 64, loan: 1400, status: "Current" },
+  { name: "Isiolo", coords: [37.58, 0.35], score: 67, loan: 1800, status: "Current" },
+  { name: "Nakuru", coords: [36.07, -0.30], score: 88, loan: 3200, status: "Current" },
+  { name: "Nairobi", coords: [36.82, -1.29], score: 91, loan: 4100, status: "Current" },
+  { name: "Machakos", coords: [37.27, -1.52], score: 71, loan: 1800, status: "Late" },
+  { name: "Narok", coords: [35.87, -1.08], score: 84, loan: 2600, status: "Current" },
+  { name: "Kajiado", coords: [36.78, -1.85], score: 54, loan: 900, status: "Parametric paid" },
+  { name: "Mombasa", coords: [39.66, -4.04], score: 86, loan: 2400, status: "Current" },
 ];
+
+type RiskBucket = "low" | "moderate" | "critical";
+function bucketOf(score: number): RiskBucket {
+  if (score >= 80) return "low";
+  if (score >= 65) return "moderate";
+  return "critical";
+}
+const RISK_META: Record<RiskBucket, { label: string; range: string; swatch: string; color: string }> = {
+  low: { label: "Low risk", range: "80–100", swatch: "bg-[color:var(--success)]", color: "oklch(0.55 0.15 155)" },
+  moderate: { label: "Moderate", range: "65–79", swatch: "bg-[color:var(--warning)]", color: "oklch(0.72 0.17 60)" },
+  critical: { label: "Critical", range: "<65", swatch: "bg-destructive", color: "oklch(0.55 0.22 28)" },
+};
+const ALL_STATUSES: VendorStatus[] = ["Current", "Discount window", "Parametric paid", "Late"];
 
 function scoreColor(score: number) {
   if (score >= 80) return "oklch(0.55 0.15 155)"; // success
@@ -154,10 +169,25 @@ function scoreColor(score: number) {
 function ClimateMap() {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
+  const markersRef = useRef<mapboxgl.Marker[]>([]);
   const [token, setToken] = useState<string>(() =>
     typeof window !== "undefined" ? localStorage.getItem("mapbox_token") ?? "" : "",
   );
   const [draft, setDraft] = useState(token);
+  const [risk, setRisk] = useState<Record<RiskBucket, boolean>>({ low: true, moderate: true, critical: true });
+  const [statuses, setStatuses] = useState<Record<VendorStatus, boolean>>({
+    Current: true,
+    "Discount window": true,
+    "Parametric paid": true,
+    Late: true,
+  });
+
+  const visiblePins = vendorPins.filter((v) => risk[bucketOf(v.score)] && statuses[v.status]);
+  const counts: Record<RiskBucket, number> = {
+    low: vendorPins.filter((v) => bucketOf(v.score) === "low").length,
+    moderate: vendorPins.filter((v) => bucketOf(v.score) === "moderate").length,
+    critical: vendorPins.filter((v) => bucketOf(v.score) === "critical").length,
+  };
 
   useEffect(() => {
     if (!token || !containerRef.current) return;
@@ -172,28 +202,39 @@ function ClimateMap() {
     mapRef.current = map;
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
 
-    map.on("load", () => {
-      vendorPins.forEach((v) => {
-        const el = document.createElement("div");
-        const color = scoreColor(v.score);
-        const size = 14 + Math.round(v.loan / 200);
-        el.style.cssText = `width:${size}px;height:${size}px;border-radius:9999px;background:${color};box-shadow:0 0 0 3px white,0 0 16px ${color};cursor:pointer;`;
-        new mapboxgl.Marker({ element: el })
-          .setLngLat(v.coords)
-          .setPopup(
-            new mapboxgl.Popup({ offset: 14, closeButton: false }).setHTML(
-              `<div style="font-family:inherit;padding:4px 2px"><strong>${v.name}</strong><br/>Resilience score: <b>${v.score}</b><br/>Loan: $${v.loan.toLocaleString()}</div>`,
-            ),
-          )
-          .addTo(map);
-      });
-    });
-
     return () => {
       map.remove();
       mapRef.current = null;
+      markersRef.current = [];
     };
   }, [token]);
+
+  // Re-render markers whenever filters change (and after map is ready)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const render = () => {
+      markersRef.current.forEach((m) => m.remove());
+      markersRef.current = [];
+      visiblePins.forEach((v) => {
+        const el = document.createElement("div");
+        const color = scoreColor(v.score);
+        const size = 14 + Math.round(v.loan / 200);
+        el.style.cssText = `width:${size}px;height:${size}px;border-radius:9999px;background:${color};box-shadow:0 0 0 3px white,0 0 16px ${color};cursor:pointer;transition:transform .15s;`;
+        const marker = new mapboxgl.Marker({ element: el })
+          .setLngLat(v.coords)
+          .setPopup(
+            new mapboxgl.Popup({ offset: 14, closeButton: false }).setHTML(
+              `<div style="font-family:inherit;padding:4px 2px"><strong>${v.name}</strong><br/>Resilience score: <b>${v.score}</b><br/>Loan: $${v.loan.toLocaleString()}<br/>Status: ${v.status}</div>`,
+            ),
+          )
+          .addTo(map);
+        markersRef.current.push(marker);
+      });
+    };
+    if (map.loaded()) render();
+    else map.once("load", render);
+  }, [token, risk, statuses]);
 
   if (!token) {
     return (
@@ -230,21 +271,76 @@ function ClimateMap() {
   }
 
   return (
-    <div className="relative mt-5 aspect-[16/10] overflow-hidden rounded-xl border border-border">
-      <div ref={containerRef} className="absolute inset-0" />
-      <div className="pointer-events-none absolute bottom-3 right-3 rounded-md bg-background/85 px-2.5 py-1 text-[10px] font-medium text-muted-foreground backdrop-blur">
-        487 active vendors · 14 counties
+    <div className="mt-5 space-y-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Risk</span>
+        {(Object.keys(RISK_META) as RiskBucket[]).map((k) => {
+          const active = risk[k];
+          const m = RISK_META[k];
+          return (
+            <button
+              key={k}
+              onClick={() => setRisk((r) => ({ ...r, [k]: !r[k] }))}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition ${active ? "border-border bg-card text-foreground" : "border-dashed border-border bg-secondary/50 text-muted-foreground opacity-60"}`}
+            >
+              <span className={`h-2 w-2 rounded-full ${m.swatch}`} />
+              {m.label}
+              <span className="text-muted-foreground">{m.range}</span>
+              <span className="rounded bg-secondary px-1 text-[10px] tabular-nums">{counts[k]}</span>
+            </button>
+          );
+        })}
+        <span className="ml-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Status</span>
+        {ALL_STATUSES.map((s) => {
+          const active = statuses[s];
+          return (
+            <button
+              key={s}
+              onClick={() => setStatuses((p) => ({ ...p, [s]: !p[s] }))}
+              className={`rounded-full border px-2.5 py-1 text-[11px] font-medium transition ${active ? "border-border bg-card text-foreground" : "border-dashed border-border bg-secondary/50 text-muted-foreground opacity-60"}`}
+            >
+              {s}
+            </button>
+          );
+        })}
+        <button
+          onClick={() => {
+            setRisk({ low: true, moderate: true, critical: true });
+            setStatuses({ Current: true, "Discount window": true, "Parametric paid": true, Late: true });
+          }}
+          className="ml-auto text-[11px] font-medium text-primary hover:underline"
+        >
+          Reset filters
+        </button>
       </div>
-      <button
-        onClick={() => {
-          localStorage.removeItem("mapbox_token");
-          setToken("");
-          setDraft("");
-        }}
-        className="absolute left-3 top-3 rounded-md bg-background/85 px-2 py-1 text-[10px] font-medium text-muted-foreground backdrop-blur hover:text-foreground"
-      >
-        Reset token
-      </button>
+
+      <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-border">
+        <div ref={containerRef} className="absolute inset-0" />
+        <div className="absolute bottom-3 right-3 rounded-md bg-background/90 px-3 py-2 text-[10px] font-medium text-muted-foreground shadow-sm backdrop-blur">
+          <p className="mb-1.5 text-[9px] font-semibold uppercase tracking-wider text-foreground">Resilience score</p>
+          {(Object.keys(RISK_META) as RiskBucket[]).map((k) => (
+            <div key={k} className="flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full" style={{ background: RISK_META[k].color, boxShadow: `0 0 0 2px white` }} />
+              <span className="text-foreground">{RISK_META[k].label}</span>
+              <span>{RISK_META[k].range}</span>
+            </div>
+          ))}
+          <p className="mt-1.5 border-t border-border pt-1.5 text-[9px]">Marker size = loan amount</p>
+        </div>
+        <div className="pointer-events-none absolute bottom-3 left-3 rounded-md bg-background/85 px-2.5 py-1 text-[10px] font-medium text-muted-foreground backdrop-blur">
+          {visiblePins.length} of {vendorPins.length} vendors shown
+        </div>
+        <button
+          onClick={() => {
+            localStorage.removeItem("mapbox_token");
+            setToken("");
+            setDraft("");
+          }}
+          className="absolute left-3 top-3 rounded-md bg-background/85 px-2 py-1 text-[10px] font-medium text-muted-foreground backdrop-blur hover:text-foreground"
+        >
+          Reset token
+        </button>
+      </div>
     </div>
   );
 }
