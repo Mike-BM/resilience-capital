@@ -174,13 +174,35 @@ function ClimateMap() {
     typeof window !== "undefined" ? localStorage.getItem("mapbox_token") ?? "" : "",
   );
   const [draft, setDraft] = useState(token);
-  const [risk, setRisk] = useState<Record<RiskBucket, boolean>>({ low: true, moderate: true, critical: true });
-  const [statuses, setStatuses] = useState<Record<VendorStatus, boolean>>({
-    Current: true,
-    "Discount window": true,
-    "Parametric paid": true,
-    Late: true,
+  const [risk, setRisk] = useState<Record<RiskBucket, boolean>>(() => {
+    if (typeof window === "undefined") return { low: true, moderate: true, critical: true };
+    try {
+      const saved = localStorage.getItem("rc_dashboard_risk");
+      if (saved) return { low: true, moderate: true, critical: true, ...JSON.parse(saved) };
+    } catch {}
+    return { low: true, moderate: true, critical: true };
   });
+  const [statuses, setStatuses] = useState<Record<VendorStatus, boolean>>(() => {
+    const defaults: Record<VendorStatus, boolean> = {
+      Current: true,
+      "Discount window": true,
+      "Parametric paid": true,
+      Late: true,
+    };
+    if (typeof window === "undefined") return defaults;
+    try {
+      const saved = localStorage.getItem("rc_dashboard_statuses");
+      if (saved) return { ...defaults, ...JSON.parse(saved) };
+    } catch {}
+    return defaults;
+  });
+
+  useEffect(() => {
+    try { localStorage.setItem("rc_dashboard_risk", JSON.stringify(risk)); } catch {}
+  }, [risk]);
+  useEffect(() => {
+    try { localStorage.setItem("rc_dashboard_statuses", JSON.stringify(statuses)); } catch {}
+  }, [statuses]);
 
   const visiblePins = vendorPins.filter((v) => risk[bucketOf(v.score)] && statuses[v.status]);
   const counts: Record<RiskBucket, number> = {
