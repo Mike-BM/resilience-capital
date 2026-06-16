@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Ban, Check, CloudRain, Sun, X } from "lucide-react";
+import { useMemo, useState } from "react";
 import { SiteFooter, SiteNav } from "@/components/SiteNav";
 
 export const Route = createFileRoute("/compare")({
@@ -15,6 +16,25 @@ export const Route = createFileRoute("/compare")({
 });
 
 function ComparePage() {
+  // Drought severity 0–50% discount on Jan–Feb baseline ($200).
+  // Total repayment must stay $2,400 → 2*Jan + 3*Mar + 7*200 = 2400 → 2J + 3M = 1000.
+  const [droughtPct, setDroughtPct] = useState(30);
+  const jan = Math.round(200 * (1 - droughtPct / 100));
+  const mar = Math.round((1000 - 2 * jan) / 3);
+  const rainyPct = Math.round(((mar - 200) / 200) * 100);
+  const schedule = useMemo(
+    () => [
+      { m: "Jan", v: jan, t: "discount" as const },
+      { m: "Feb", v: jan, t: "discount" as const },
+      { m: "Mar", v: mar, t: "premium" as const },
+      { m: "Apr", v: mar, t: "premium" as const },
+      { m: "May", v: mar, t: "premium" as const },
+      ...Array.from({ length: 7 }, (_, i) => ({ m: ["Jun","Jul","Aug","Sep","Oct","Nov","Dec"][i], v: 200, t: "base" as const })),
+    ],
+    [jan, mar],
+  );
+  const total = schedule.reduce((s, x) => s + x.v, 0);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteNav />
@@ -34,14 +54,14 @@ function ComparePage() {
       <section className="mx-auto max-w-7xl px-6 py-16">
         <div className="grid gap-6 lg:grid-cols-2">
           <BankCard />
-          <ResilienceCard />
+          <ResilienceCard jan={jan} mar={mar} droughtPct={droughtPct} rainyPct={rainyPct} schedule={schedule} onDrought={setDroughtPct} />
         </div>
 
         <div className="mt-12 rounded-2xl border border-border bg-card p-8 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-6">
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">The math both models agree on</p>
-              <p className="mt-2 text-2xl font-medium">Total repaid: <span className="font-semibold">$2,400</span>. We just route it through the seasons that can pay it.</p>
+              <p className="mt-2 text-2xl font-medium">Total repaid: <span className="font-semibold">${total.toLocaleString()}</span>. We just route it through the seasons that can pay it.</p>
             </div>
             <Link to="/apply" className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-soft)] transition-transform hover:-translate-y-0.5">
               Try the vendor flow <ArrowRight className="h-4 w-4" />
@@ -86,7 +106,21 @@ function BankCard() {
   );
 }
 
-function ResilienceCard() {
+function ResilienceCard({
+  jan,
+  mar,
+  droughtPct,
+  rainyPct,
+  schedule,
+  onDrought,
+}: {
+  jan: number;
+  mar: number;
+  droughtPct: number;
+  rainyPct: number;
+  schedule: { m: string; v: number; t: "discount" | "premium" | "base" }[];
+  onDrought: (n: number) => void;
+}) {
   return (
     <article className="relative overflow-hidden rounded-3xl border border-primary/30 bg-card p-8 shadow-[var(--shadow-soft)]">
       <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[image:var(--gradient-sun)] opacity-30 blur-3xl" />
@@ -99,20 +133,47 @@ function ResilienceCard() {
 
       <dl className="mt-8 space-y-1 divide-y divide-border/60 border-y border-border/60">
         <Row label="Risk score" value="82 / 100 (resilience-adjusted)" />
-        <Row label="Jan–Feb (drought)" value="$120 / mo · −30%" tone="good" icon={<Sun className="h-3.5 w-3.5" />} />
-        <Row label="Mar–May (rainy)" value="$280 / mo · +40%" tone="warn" icon={<CloudRain className="h-3.5 w-3.5" />} />
+        <Row label="Jan–Feb (drought)" value={`$${jan} / mo · −${droughtPct}%`} tone="good" icon={<Sun className="h-3.5 w-3.5" />} />
+        <Row label="Mar–May (rainy)" value={`$${mar} / mo · +${rainyPct}%`} tone="warn" icon={<CloudRain className="h-3.5 w-3.5" />} />
         <Row label="Jun–Dec (baseline)" value="$200 / mo" />
         <Row label="Total repayment" value="$2,400" />
         <Row label="Disbursement" value="M-Pesa · 3 minutes" tone="good" />
         <Row label="Projected survival" value="96%" tone="good" />
       </dl>
 
-      <ScheduleBars />
+      <DroughtControl droughtPct={droughtPct} rainyPct={rainyPct} onChange={onDrought} />
+      <ScheduleBars schedule={schedule} />
 
       <p className="mt-6 text-xs text-muted-foreground">
         Carbon credits add <span className="font-semibold text-foreground">$2–5/mo</span> back to James. Parametric trigger covers 80%+ drought events automatically.
       </p>
     </article>
+  );
+}
+
+function DroughtControl({ droughtPct, rainyPct, onChange }: { droughtPct: number; rainyPct: number; onChange: (n: number) => void }) {
+  return (
+    <div className="mt-6 rounded-xl border border-border bg-background p-4">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Drought severity (Jan–Feb)</p>
+        <p className="text-xs text-muted-foreground">Rainy premium auto-balances → <span className="font-semibold text-foreground">+{rainyPct}%</span></p>
+      </div>
+      <input
+        type="range"
+        min={0}
+        max={50}
+        step={1}
+        value={droughtPct}
+        onChange={(e) => onChange(+e.target.value)}
+        className="mt-3 w-full accent-[color:var(--success)]"
+        aria-label="Drought discount percentage"
+      />
+      <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
+        <span>No drought · 0%</span>
+        <span className="font-semibold text-foreground">−{droughtPct}% discount</span>
+        <span>Severe · 50%</span>
+      </div>
+    </div>
   );
 }
 
@@ -131,34 +192,19 @@ function Row({ label, value, tone, icon }: { label: string; value: string; tone?
   );
 }
 
-const months = [
-  { m: "Jan", v: 120, t: "discount" },
-  { m: "Feb", v: 120, t: "discount" },
-  { m: "Mar", v: 280, t: "premium" },
-  { m: "Apr", v: 280, t: "premium" },
-  { m: "May", v: 280, t: "premium" },
-  { m: "Jun", v: 200, t: "base" },
-  { m: "Jul", v: 200, t: "base" },
-  { m: "Aug", v: 200, t: "base" },
-  { m: "Sep", v: 200, t: "base" },
-  { m: "Oct", v: 200, t: "base" },
-  { m: "Nov", v: 200, t: "base" },
-  { m: "Dec", v: 200, t: "base" },
-] as const;
-
-function ScheduleBars() {
-  const max = 280;
+function ScheduleBars({ schedule }: { schedule: { m: string; v: number; t: "discount" | "premium" | "base" }[] }) {
+  const max = Math.max(280, ...schedule.map((m) => m.v));
   return (
     <div className="mt-6 rounded-xl border border-border bg-secondary/40 p-4">
       <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">12-month adaptive schedule</p>
       <div className="mt-4 flex items-end gap-1.5">
-        {months.map((m) => {
+        {schedule.map((m) => {
           const color =
             m.t === "discount" ? "bg-[color:var(--success)]" : m.t === "premium" ? "bg-[color:var(--warning)]" : "bg-primary/70";
           return (
             <div key={m.m} className="flex flex-1 flex-col items-center gap-1">
               <div className="flex h-28 w-full items-end">
-                <div className={`w-full rounded-sm ${color} transition-all`} style={{ height: `${(m.v / max) * 100}%` }} />
+                <div className={`w-full rounded-sm ${color} transition-all duration-300`} style={{ height: `${(m.v / max) * 100}%` }} />
               </div>
               <span className="text-[10px] text-muted-foreground">{m.m}</span>
             </div>

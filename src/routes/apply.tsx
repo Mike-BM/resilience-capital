@@ -15,8 +15,27 @@ export const Route = createFileRoute("/apply")({
 
 type Step = "form" | "scoring" | "approved" | "disbursed";
 
+type LoanRecord = {
+  id: string;
+  vendor: string;
+  location: string;
+  msisdn: string;
+  amount: number;
+  units: number;
+  score: number;
+  apr: number;
+  totalRepayment: number;
+  createdAt: string;
+  status: "approved" | "disbursed";
+};
+
+function generateLoanId() {
+  return "RC-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+}
+
 function ApplyPage() {
   const [step, setStep] = useState<Step>("form");
+  const [loan, setLoan] = useState<LoanRecord | null>(null);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -30,10 +49,46 @@ function ApplyPage() {
       </section>
 
       <section className="mx-auto max-w-5xl px-6 py-12">
-        {step === "form" && <FormStep onSubmit={() => setStep("scoring")} />}
+        {step === "form" && (
+          <FormStep
+            onSubmit={(draft) => {
+              const record: LoanRecord = {
+                id: generateLoanId(),
+                ...draft,
+                score: 82,
+                apr: 12,
+                totalRepayment: 2400,
+                createdAt: new Date().toISOString(),
+                status: "approved",
+              };
+              try {
+                const existing = JSON.parse(localStorage.getItem("rc_loans") ?? "[]");
+                localStorage.setItem("rc_loans", JSON.stringify([record, ...existing]));
+              } catch {}
+              setLoan(record);
+              setStep("scoring");
+            }}
+          />
+        )}
         {step === "scoring" && <ScoringStep onDone={() => setStep("approved")} />}
-        {step === "approved" && <ApprovedStep onDisburse={() => setStep("disbursed")} />}
-        {step === "disbursed" && <DisbursedStep />}
+        {step === "approved" && loan && (
+          <ApprovedStep
+            loan={loan}
+            onDisburse={() => {
+              const updated = { ...loan, status: "disbursed" as const };
+              setLoan(updated);
+              try {
+                const all = JSON.parse(localStorage.getItem("rc_loans") ?? "[]");
+                localStorage.setItem(
+                  "rc_loans",
+                  JSON.stringify(all.map((l: LoanRecord) => (l.id === updated.id ? updated : l))),
+                );
+              } catch {}
+              setStep("disbursed");
+            }}
+          />
+        )}
+        {step === "disbursed" && loan && <DisbursedStep loan={loan} />}
       </section>
       <SiteFooter />
     </div>
@@ -72,9 +127,10 @@ function Card({ children }: { children: React.ReactNode }) {
   return <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">{children}</div>;
 }
 
-function FormStep({ onSubmit }: { onSubmit: () => void }) {
+function FormStep({ onSubmit }: { onSubmit: (draft: { vendor: string; location: string; msisdn: string; amount: number; units: number }) => void }) {
   const [name, setName] = useState("James Ochieng");
   const [location, setLocation] = useState("Turkana, Kenya");
+  const [msisdn, setMsisdn] = useState("+254 712 894 102");
   const [amount, setAmount] = useState(2000);
   const [units, setUnits] = useState(50);
 
@@ -85,7 +141,7 @@ function FormStep({ onSubmit }: { onSubmit: () => void }) {
           className="space-y-5"
           onSubmit={(e) => {
             e.preventDefault();
-            onSubmit();
+            onSubmit({ vendor: name, location, msisdn, amount, units });
           }}
         >
           <Field label="Full name">
@@ -101,7 +157,7 @@ function FormStep({ onSubmit }: { onSubmit: () => void }) {
             <Field label="M-Pesa number">
               <div className="relative">
                 <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <input defaultValue="+254 712 894 102" className="w-full rounded-md border border-input bg-background py-2.5 pl-9 pr-3 text-sm" />
+                <input value={msisdn} onChange={(e) => setMsisdn(e.target.value)} className="w-full rounded-md border border-input bg-background py-2.5 pl-9 pr-3 text-sm" />
               </div>
             </Field>
           </div>
@@ -200,7 +256,7 @@ function Tick({ label, delay = 0, highlight }: { label: string; delay?: number; 
   );
 }
 
-function ApprovedStep({ onDisburse }: { onDisburse: () => void }) {
+function ApprovedStep({ loan, onDisburse }: { loan: LoanRecord; onDisburse: () => void }) {
   return (
     <Card>
       <div className="flex items-start justify-between gap-6">
@@ -208,12 +264,12 @@ function ApprovedStep({ onDisburse }: { onDisburse: () => void }) {
           <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--success)]/15 px-2.5 py-1 text-xs font-semibold uppercase tracking-wider text-[color:var(--success)]">
             <Check className="h-3 w-3" /> Approved
           </span>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight">$2,000 — adaptive 12-month schedule</h2>
-          <p className="mt-2 text-sm text-muted-foreground">Total repayment $2,400 · 12% APR · Origination 2.5%</p>
+          <h2 className="mt-3 text-3xl font-semibold tracking-tight">${loan.amount.toLocaleString()} — adaptive 12-month schedule</h2>
+          <p className="mt-2 text-sm text-muted-foreground">Loan {loan.id} · Total repayment ${loan.totalRepayment.toLocaleString()} · {loan.apr}% APR · Origination 2.5%</p>
         </div>
         <div className="hidden text-right md:block">
           <p className="text-xs uppercase tracking-wider text-muted-foreground">Resilience Score</p>
-          <p className="text-4xl font-semibold text-primary">82</p>
+          <p className="text-4xl font-semibold text-primary">{loan.score}</p>
         </div>
       </div>
 
@@ -268,20 +324,49 @@ function Perk({ title, value, body }: { title: string; value: string; body: stri
   );
 }
 
-function DisbursedStep() {
+function DisbursedStep({ loan }: { loan: LoanRecord }) {
+  const t0 = new Date(loan.createdAt);
+  const fmt = (offsetSec: number) =>
+    new Date(t0.getTime() + offsetSec * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  const timeline = [
+    { t: fmt(0), label: "Application submitted", body: `${loan.vendor} · ${loan.location}`, done: true },
+    { t: fmt(12), label: "Satellite + M-Pesa signals fused", body: `Resilience score ${loan.score}/100`, done: true },
+    { t: fmt(48), label: "Adaptive schedule generated", body: `12 months · total $${loan.totalRepayment.toLocaleString()}`, done: true },
+    { t: fmt(120), label: "Loan approved", body: `Loan ID ${loan.id}`, done: true },
+    { t: fmt(167), label: "M-Pesa disbursement", body: `$${loan.amount.toLocaleString()} → ${loan.msisdn}`, done: true },
+    { t: "+24h", label: "Inventory verification ping", body: "GPS-tagged photo requested from vendor", done: false },
+  ];
   return (
     <Card>
       <div className="flex flex-col items-center text-center">
         <div className="grid h-16 w-16 place-items-center rounded-full bg-[image:var(--gradient-sun)] text-accent-foreground shadow-[var(--shadow-glow)]">
           <Check className="h-8 w-8" />
         </div>
-        <h2 className="mt-6 text-3xl font-semibold tracking-tight">$2,000 sent to +254 712 894 102</h2>
-        <p className="mt-2 max-w-md text-sm text-muted-foreground">M-Pesa confirmation NLJ7RT61SV · 2 min 47 sec from submission to disbursement.</p>
+        <h2 className="mt-6 text-3xl font-semibold tracking-tight">${loan.amount.toLocaleString()} sent to {loan.msisdn}</h2>
+        <p className="mt-2 max-w-md text-sm text-muted-foreground">Loan {loan.id} · M-Pesa confirmation NLJ7RT61SV · 2 min 47 sec from submission to disbursement.</p>
 
         <div className="mt-8 grid w-full max-w-xl grid-cols-3 gap-3 text-left">
-          <Mini label="50 panels" value="Inventory" />
+          <Mini label={`${loan.units} panels`} value="Inventory" />
           <Mini label="125 households" value="Energy access" />
           <Mini label="60 tons" value="CO₂ avoided" />
+        </div>
+
+        <div className="mt-10 w-full max-w-2xl text-left">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Approval timeline</p>
+          <ol className="mt-4 space-y-3">
+            {timeline.map((s, i) => (
+              <li key={i} className="flex items-start gap-3 rounded-lg border border-border bg-card p-3">
+                <span className={`mt-0.5 grid h-6 w-6 flex-none place-items-center rounded-full text-[10px] font-semibold ${s.done ? "bg-[color:var(--success)] text-white" : "border border-dashed border-border text-muted-foreground"}`}>
+                  {s.done ? <Check className="h-3 w-3" /> : i + 1}
+                </span>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{s.label}</p>
+                  <p className="text-xs text-muted-foreground">{s.body}</p>
+                </div>
+                <span className="text-xs tabular-nums text-muted-foreground">{s.t}</span>
+              </li>
+            ))}
+          </ol>
         </div>
 
         <div className="mt-10 flex flex-wrap justify-center gap-3">

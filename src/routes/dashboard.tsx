@@ -1,5 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Activity, ArrowDownRight, ArrowUpRight, CloudRain, Droplets, Sun, TrendingUp, Users } from "lucide-react";
+import { Activity, ArrowDownRight, ArrowUpRight, CloudRain, Droplets, ExternalLink, Sun, TrendingUp, Users } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
 import { SiteFooter, SiteNav } from "@/components/SiteNav";
 
 export const Route = createFileRoute("/dashboard")({
@@ -128,42 +131,120 @@ function Legend({ swatch, label }: { swatch: string; label: string }) {
   );
 }
 
-const mapDots = [
-  { x: 28, y: 22, r: 14, tone: "warn", label: "Turkana" },
-  { x: 36, y: 30, r: 10, tone: "warn", label: "Marsabit" },
-  { x: 44, y: 44, r: 18, tone: "good", label: "Nakuru" },
-  { x: 56, y: 52, r: 22, tone: "good", label: "Nairobi" },
-  { x: 68, y: 60, r: 12, tone: "base", label: "Machakos" },
-  { x: 50, y: 64, r: 9, tone: "bad", label: "Kajiado" },
-  { x: 72, y: 38, r: 11, tone: "warn", label: "Garissa" },
-  { x: 40, y: 58, r: 13, tone: "good", label: "Narok" },
-  { x: 60, y: 30, r: 8, tone: "warn", label: "Isiolo" },
-  { x: 80, y: 70, r: 14, tone: "good", label: "Mombasa" },
+// [lng, lat] for Kenya vendor hubs
+const vendorPins: { name: string; coords: [number, number]; score: number; loan: number }[] = [
+  { name: "Turkana", coords: [35.6, 3.12], score: 62, loan: 2000 },
+  { name: "Marsabit", coords: [37.99, 2.33], score: 58, loan: 1500 },
+  { name: "Garissa", coords: [39.66, -0.45], score: 64, loan: 1400 },
+  { name: "Isiolo", coords: [37.58, 0.35], score: 67, loan: 1800 },
+  { name: "Nakuru", coords: [36.07, -0.30], score: 88, loan: 3200 },
+  { name: "Nairobi", coords: [36.82, -1.29], score: 91, loan: 4100 },
+  { name: "Machakos", coords: [37.27, -1.52], score: 71, loan: 1800 },
+  { name: "Narok", coords: [35.87, -1.08], score: 84, loan: 2600 },
+  { name: "Kajiado", coords: [36.78, -1.85], score: 54, loan: 900 },
+  { name: "Mombasa", coords: [39.66, -4.04], score: 86, loan: 2400 },
 ];
 
+function scoreColor(score: number) {
+  if (score >= 80) return "oklch(0.55 0.15 155)"; // success
+  if (score >= 65) return "oklch(0.72 0.17 60)"; // warning
+  return "oklch(0.55 0.22 28)"; // critical
+}
+
 function ClimateMap() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const [token, setToken] = useState<string>(() =>
+    typeof window !== "undefined" ? localStorage.getItem("mapbox_token") ?? "" : "",
+  );
+  const [draft, setDraft] = useState(token);
+
+  useEffect(() => {
+    if (!token || !containerRef.current) return;
+    mapboxgl.accessToken = token;
+    const map = new mapboxgl.Map({
+      container: containerRef.current,
+      style: "mapbox://styles/mapbox/light-v11",
+      center: [37.9, 0.5],
+      zoom: 4.6,
+      attributionControl: false,
+    });
+    mapRef.current = map;
+    map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
+
+    map.on("load", () => {
+      vendorPins.forEach((v) => {
+        const el = document.createElement("div");
+        const color = scoreColor(v.score);
+        const size = 14 + Math.round(v.loan / 200);
+        el.style.cssText = `width:${size}px;height:${size}px;border-radius:9999px;background:${color};box-shadow:0 0 0 3px white,0 0 16px ${color};cursor:pointer;`;
+        new mapboxgl.Marker({ element: el })
+          .setLngLat(v.coords)
+          .setPopup(
+            new mapboxgl.Popup({ offset: 14, closeButton: false }).setHTML(
+              `<div style="font-family:inherit;padding:4px 2px"><strong>${v.name}</strong><br/>Resilience score: <b>${v.score}</b><br/>Loan: $${v.loan.toLocaleString()}</div>`,
+            ),
+          )
+          .addTo(map);
+      });
+    });
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
+  }, [token]);
+
+  if (!token) {
+    return (
+      <div className="mt-5 rounded-xl border border-dashed border-border bg-secondary/40 p-6">
+        <p className="text-sm font-medium">Connect Mapbox to render the live exposure map.</p>
+        <p className="mt-1 text-xs text-muted-foreground">Paste a public token (pk.…) from your Mapbox account. Stored locally in this browser only.</p>
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+          <input
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder="pk.eyJ1Ijo..."
+            className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm"
+          />
+          <button
+            onClick={() => {
+              localStorage.setItem("mapbox_token", draft.trim());
+              setToken(draft.trim());
+            }}
+            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+          >
+            Activate map
+          </button>
+        </div>
+        <a
+          href="https://account.mapbox.com/access-tokens/"
+          target="_blank"
+          rel="noreferrer"
+          className="mt-3 inline-flex items-center gap-1 text-xs text-primary hover:underline"
+        >
+          Get a free Mapbox token <ExternalLink className="h-3 w-3" />
+        </a>
+      </div>
+    );
+  }
+
   return (
-    <div className="relative mt-5 aspect-[16/10] overflow-hidden rounded-xl border border-border bg-[image:var(--gradient-earth)]">
-      <div className="absolute inset-0 [background-image:linear-gradient(oklch(0.42_0.11_155/0.06)_1px,transparent_1px),linear-gradient(90deg,oklch(0.42_0.11_155/0.06)_1px,transparent_1px)] [background-size:32px_32px]" />
-      <svg viewBox="0 0 100 70" className="absolute inset-0 h-full w-full">
-        <path d="M22 18 Q40 8 65 16 T92 38 Q88 60 70 66 Q45 72 28 60 Q12 48 18 30 Z" fill="oklch(0.55 0.08 155 / 0.15)" stroke="oklch(0.42 0.11 155 / 0.5)" strokeWidth="0.3" />
-      </svg>
-      {mapDots.map((d, i) => {
-        const color =
-          d.tone === "good" ? "oklch(0.55 0.15 155)" : d.tone === "warn" ? "oklch(0.72 0.17 60)" : d.tone === "bad" ? "oklch(0.55 0.22 28)" : "oklch(0.42 0.11 155)";
-        return (
-          <div key={i} className="group absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${d.x}%`, top: `${d.y}%` }}>
-            <span className="absolute inset-0 -m-2 animate-ping rounded-full opacity-30" style={{ backgroundColor: color, width: d.r * 2 + 8, height: d.r * 2 + 8 }} />
-            <span className="block rounded-full ring-2 ring-white" style={{ width: d.r, height: d.r, backgroundColor: color }} />
-            <span className="pointer-events-none absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap rounded-md bg-foreground/90 px-1.5 py-0.5 text-[10px] font-medium text-background opacity-0 transition-opacity group-hover:opacity-100">
-              {d.label}
-            </span>
-          </div>
-        );
-      })}
-      <div className="absolute bottom-3 right-3 rounded-md bg-background/80 px-2.5 py-1 text-[10px] font-medium text-muted-foreground backdrop-blur">
+    <div className="relative mt-5 aspect-[16/10] overflow-hidden rounded-xl border border-border">
+      <div ref={containerRef} className="absolute inset-0" />
+      <div className="pointer-events-none absolute bottom-3 right-3 rounded-md bg-background/85 px-2.5 py-1 text-[10px] font-medium text-muted-foreground backdrop-blur">
         487 active vendors · 14 counties
       </div>
+      <button
+        onClick={() => {
+          localStorage.removeItem("mapbox_token");
+          setToken("");
+          setDraft("");
+        }}
+        className="absolute left-3 top-3 rounded-md bg-background/85 px-2 py-1 text-[10px] font-medium text-muted-foreground backdrop-blur hover:text-foreground"
+      >
+        Reset token
+      </button>
     </div>
   );
 }
