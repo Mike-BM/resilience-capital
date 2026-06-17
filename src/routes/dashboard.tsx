@@ -203,6 +203,26 @@ function ClimateMap() {
   useEffect(() => {
     try { localStorage.setItem("rc_dashboard_statuses", JSON.stringify(statuses)); } catch {}
   }, [statuses]);
+  const [viewport, setViewport] = useState<{ center: [number, number]; zoom: number; bearing: number }>(() => {
+    if (typeof window === "undefined") return { center: [37.9, 0.5], zoom: 4.6, bearing: 0 };
+    try {
+      const saved = localStorage.getItem("rc_dashboard_viewport");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return {
+          center: parsed.center ?? [37.9, 0.5],
+          zoom: parsed.zoom ?? 4.6,
+          bearing: parsed.bearing ?? 0,
+        };
+      }
+    } catch {}
+    return { center: [37.9, 0.5], zoom: 4.6, bearing: 0 };
+  });
+  useEffect(() => {
+    try { localStorage.setItem("rc_dashboard_viewport", JSON.stringify(viewport)); } catch {}
+  }, [viewport]);
+
+
 
   const visiblePins = vendorPins.filter((v) => risk[bucketOf(v.score)] && statuses[v.status]);
   const counts: Record<RiskBucket, number> = {
@@ -217,12 +237,22 @@ function ClimateMap() {
     const map = new mapboxgl.Map({
       container: containerRef.current,
       style: "mapbox://styles/mapbox/light-v11",
-      center: [37.9, 0.5],
-      zoom: 4.6,
+      center: viewport.center,
+      zoom: viewport.zoom,
+      bearing: viewport.bearing,
       attributionControl: false,
     });
     mapRef.current = map;
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
+
+    map.on("moveend", () => {
+      const c = map.getCenter();
+      setViewport({
+        center: [c.lng, c.lat],
+        zoom: map.getZoom(),
+        bearing: map.getBearing(),
+      });
+    });
 
     return () => {
       map.remove();
@@ -329,10 +359,18 @@ function ClimateMap() {
           onClick={() => {
             setRisk({ low: true, moderate: true, critical: true });
             setStatuses({ Current: true, "Discount window": true, "Parametric paid": true, Late: true });
+            const defaultVp = { center: [37.9, 0.5] as [number, number], zoom: 4.6, bearing: 0 };
+            setViewport(defaultVp);
+            const map = mapRef.current;
+            if (map) {
+              map.setCenter(defaultVp.center);
+              map.setZoom(defaultVp.zoom);
+              map.setBearing(defaultVp.bearing);
+            }
           }}
           className="ml-auto text-[11px] font-medium text-primary hover:underline"
         >
-          Reset filters
+          Reset all
         </button>
       </div>
 
