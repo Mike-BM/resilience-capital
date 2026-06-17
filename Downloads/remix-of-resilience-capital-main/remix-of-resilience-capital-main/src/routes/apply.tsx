@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowRight, Camera, Check, ChevronRight, Loader2, MapPin, Phone, Sparkles, Sun } from "lucide-react";
 import { SiteFooter, SiteNav } from "@/components/SiteNav";
 
@@ -215,13 +215,22 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function ScoringStep({ onDone }: { onDone: () => void }) {
+ const [isDone, setIsDone] = useState(false);
+
+ useEffect(() => {
+ const timer = setTimeout(() => setIsDone(true), 1500);
+ return () => clearTimeout(timer);
+ }, []);
+
  return (
  <Card>
  <div className="flex flex-col items-center py-8 text-center">
- <div className="grid h-14 w-14 place-items-center rounded-full bg-[image:var(--gradient-hero)] text-primary-foreground">
- <Loader2 className="h-6 w-6 " />
+ <div className="grid h-14 w-14 place-items-center rounded-full bg-[image:var(--gradient-hero)] text-primary-foreground transition-all duration-500">
+ {isDone ? <Check className="h-6 w-6" /> : <Loader2 className="h-6 w-6 animate-spin" />}
  </div>
- <h2 className="mt-6 text-2xl font-semibold tracking-tight">Running the Resilience model…</h2>
+ <h2 className="mt-6 text-2xl font-semibold tracking-tight">
+ {isDone ? "Resilience model complete" : "Running the Resilience model…"}
+ </h2>
  <p className="mt-2 max-w-md text-sm text-muted-foreground">Rainfall 35% · Soil moisture 30% · Vegetation 20% · Seasonal 15%</p>
 
  <div className="mt-10 grid w-full max-w-2xl gap-3 text-left">
@@ -232,12 +241,14 @@ function ScoringStep({ onDone }: { onDone: () => void }) {
  <Tick label="Resilience Score computed: 82 / 100" delay={1200} highlight />
  </div>
 
+ <div className={`mt-10 transition-opacity duration-500 ${isDone ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
  <button
  onClick={onDone}
- className="mt-10 inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-soft)]"
+ className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-soft)]"
  >
  View adaptive offer <ArrowRight className="h-4 w-4" />
  </button>
+ </div>
  </div>
  </Card>
  );
