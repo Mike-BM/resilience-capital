@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Activity, ArrowDownRight, ArrowUpRight, CloudRain, Droplets, ExternalLink, Sun, TrendingUp, Users } from "lucide-react";
+import { Activity, ArrowDownRight, ArrowUpRight, Camera, CloudRain, Droplets, ExternalLink, Sun, TrendingUp, Users } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -241,6 +241,7 @@ function ClimateMap() {
       zoom: viewport.zoom,
       bearing: viewport.bearing,
       attributionControl: false,
+      preserveDrawingBuffer: true,
     });
     mapRef.current = map;
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
@@ -357,6 +358,22 @@ function ClimateMap() {
         })}
         <button
           onClick={() => {
+            const map = mapRef.current;
+            if (!map) return;
+            const dataUrl = map.getCanvas().toDataURL("image/png");
+            const link = document.createElement("a");
+            link.href = dataUrl;
+            const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+            link.download = `resilience-snapshot-${ts}.png`;
+            link.click();
+          }}
+          className="ml-auto inline-flex items-center gap-1 rounded-md border border-border bg-card px-3 py-1.5 text-[11px] font-medium text-foreground shadow-sm hover:bg-secondary/60 transition"
+          title="Download PNG of current map view with filters applied"
+        >
+          <Camera className="h-3 w-3" /> Export snapshot
+        </button>
+        <button
+          onClick={() => {
             setRisk({ low: true, moderate: true, critical: true });
             setStatuses({ Current: true, "Discount window": true, "Parametric paid": true, Late: true });
             const defaultVp = { center: [37.9, 0.5] as [number, number], zoom: 4.6, bearing: 0 };
@@ -368,7 +385,7 @@ function ClimateMap() {
               map.setBearing(defaultVp.bearing);
             }
           }}
-          className="ml-auto text-[11px] font-medium text-primary hover:underline"
+          className="text-[11px] font-medium text-primary hover:underline"
         >
           Reset all
         </button>
