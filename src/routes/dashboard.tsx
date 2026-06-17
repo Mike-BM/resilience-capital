@@ -368,7 +368,6 @@ function ClimateMap() {
               ...(Object.keys(risk) as RiskBucket[]).filter((k) => risk[k]).map((k) => RISK_META[k].label),
               ...ALL_STATUSES.filter((s) => statuses[s]),
             ].join(", ");
-            BODIES:
             link.download = `resilience-snapshot-${ts}.png`;
             link.click();
           }}
