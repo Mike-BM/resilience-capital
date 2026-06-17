@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Activity, ArrowDownRight, ArrowUpRight, CloudRain, Droplets, ExternalLink, Sun, TrendingUp, Users } from "lucide-react";
+import { Activity, ArrowDownRight, ArrowUpRight, Camera, CloudRain, Droplets, ExternalLink, Sun, TrendingUp, Users } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
