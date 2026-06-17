@@ -241,6 +241,7 @@ function ClimateMap() {
       zoom: viewport.zoom,
       bearing: viewport.bearing,
       attributionControl: false,
+      preserveDrawingBuffer: true,
     });
     mapRef.current = map;
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
