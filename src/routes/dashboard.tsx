@@ -364,10 +364,6 @@ function ClimateMap() {
             const link = document.createElement("a");
             link.href = dataUrl;
             const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-            const activeFilters = [
-              ...(Object.keys(risk) as RiskBucket[]).filter((k) => risk[k]).map((k) => RISK_META[k].label),
-              ...ALL_STATUSES.filter((s) => statuses[s]),
-            ].join(", ");
             link.download = `resilience-snapshot-${ts}.png`;
             link.click();
           }}
