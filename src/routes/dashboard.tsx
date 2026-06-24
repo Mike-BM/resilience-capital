@@ -243,9 +243,7 @@ function ClimateMap() {
  const containerRef = useRef<HTMLDivElement>(null);
  const mapRef = useRef<mapboxgl.Map | null>(null);
  const markersRef = useRef<mapboxgl.Marker[]>([]);
- const [token, setToken] = useState<string>(() =>
- typeof window !== "undefined" ? localStorage.getItem("mapbox_token") ?? "" : "",
- );
+ const [token, setToken] = useState<string>("demo_token");
  const [draft, setDraft] = useState(token);
  const [risk, setRisk] = useState<Record<RiskBucket, boolean>>(() => {
  if (typeof window === "undefined") return { low: true, moderate: true, critical: true };
@@ -309,7 +307,26 @@ function ClimateMap() {
  mapboxgl.accessToken = token;
  const map = new mapboxgl.Map({
  container: containerRef.current,
- style: "mapbox://styles/mapbox/light-v11",
+ style: {
+   version: 8,
+   sources: {
+     'carto': {
+       type: 'raster',
+       tiles: ['https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'],
+       tileSize: 256,
+       attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
+     }
+   },
+   layers: [
+     {
+       id: 'carto-layer',
+       type: 'raster',
+       source: 'carto',
+       minzoom: 0,
+       maxzoom: 22
+     }
+   ]
+ },
  center: viewport.center,
  zoom: viewport.zoom,
  bearing: viewport.bearing,
@@ -362,39 +379,7 @@ function ClimateMap() {
  else map.once("load", render);
  }, [token, risk, statuses]);
 
- if (!token) {
- return (
- <div className="mt-5 rounded-xl border border-dashed border-border bg-secondary/40 p-6">
- <p className="text-sm font-medium">Connect Mapbox to render the live exposure map.</p>
- <p className="mt-1 text-xs text-muted-foreground">Paste a public token (pk.…) from your Mapbox account. Stored locally in this browser only.</p>
- <div className="mt-4 flex flex-col gap-2 sm:flex-row">
- <input
- value={draft}
- onChange={(e) => setDraft(e.target.value)}
- placeholder="pk.eyJ1Ijo..."
- className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm"
- />
- <button
- onClick={() => {
- localStorage.setItem("mapbox_token", draft.trim());
- setToken(draft.trim());
- }}
- className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
- >
- Activate map
- </button>
- </div>
- <a
- href="https://account.mapbox.com/access-tokens/"
- target="_blank"
- rel="noreferrer"
- className="mt-3 inline-flex items-center gap-1 text-xs text-primary hover:underline"
- >
- Get a free Mapbox token <ExternalLink className="h-3 w-3" />
- </a>
- </div>
- );
- }
+
 
  return (
  <div className="mt-5 space-y-3">
@@ -480,16 +465,7 @@ function ClimateMap() {
  <div className="pointer-events-none absolute bottom-3 left-3 rounded-md bg-background/85 px-2.5 py-1 text-[10px] font-medium text-muted-foreground backdrop-blur">
  {visiblePins.length} of {vendorPins.length} vendors shown
  </div>
- <button
- onClick={() => {
- localStorage.removeItem("mapbox_token");
- setToken("");
- setDraft("");
- }}
- className="absolute left-3 top-3 rounded-md bg-background/85 px-2 py-1 text-[10px] font-medium text-muted-foreground backdrop-blur hover:text-foreground"
- >
- Reset token
- </button>
+
  </div>
  </div>
  );
@@ -536,12 +512,12 @@ function Insight({ icon, text }: { icon: React.ReactNode; text: string }) {
 }
 
 const vendors = [
- { name: "James Ochieng", loc: "Turkana", loan: "KSh 2,000", score: 82, status: "Current", climate: "warn", repay: 41 },
- { name: "Amina Hassan", loc: "Garissa", loan: "KSh 1,400", score: 76, status: "Current", climate: "warn", repay: 62 },
- { name: "Peter Mwangi", loc: "Nakuru", loan: "KSh 3,200", score: 88, status: "Current", climate: "good", repay: 78 },
- { name: "Grace Wairimu", loc: "Machakos", loan: "KSh 1,800", score: 71, status: "Discount window", climate: "base", repay: 28 },
- { name: "Daniel Kiprop", loc: "Narok", loan: "KSh 2,600", score: 84, status: "Current", climate: "good", repay: 55 },
- { name: "Mary Achieng", loc: "Kajiado", loan: "KSh 900", score: 64, status: "Parametric paid", climate: "bad", repay: 33 },
+ { name: "James Ochieng", loc: "Turkana", farmerId: "FRM-78901", loan: "KSh 2,000", score: 82, status: "Current", climate: "warn", repay: 41 },
+ { name: "Amina Hassan", loc: "Garissa", farmerId: "FRM-78902", loan: "KSh 1,400", score: 76, status: "Current", climate: "warn", repay: 62 },
+ { name: "Peter Mwangi", loc: "Nakuru", farmerId: "FRM-78904", loan: "KSh 3,200", score: 88, status: "Current", climate: "good", repay: 78 },
+ { name: "Grace Wairimu", loc: "Machakos", farmerId: "FRM-78905", loan: "KSh 1,800", score: 71, status: "Discount window", climate: "base", repay: 28 },
+ { name: "Daniel Kiprop", loc: "Narok", farmerId: "FRM-78906", loan: "KSh 2,600", score: 84, status: "Current", climate: "good", repay: 55 },
+ { name: "Mary Achieng", loc: "Kajiado", farmerId: "FRM-78907", loan: "KSh 900", score: 64, status: "Parametric paid", climate: "bad", repay: 33 },
 ];
 
 function VendorTable() {
@@ -550,7 +526,8 @@ function VendorTable() {
  <table className="w-full text-sm">
  <thead className="text-xs uppercase tracking-wider text-muted-foreground">
  <tr>
- <th className="px-6 py-3 text-left font-medium">Vendor</th>
+ <th className="px-6 py-3 text-left font-medium">Farmer</th>
+ <th className="px-3 py-3 text-left font-medium">ID</th>
  <th className="px-3 py-3 text-left font-medium">Loan</th>
  <th className="px-3 py-3 text-left font-medium">Score</th>
  <th className="px-3 py-3 text-left font-medium">Climate</th>
@@ -565,6 +542,7 @@ function VendorTable() {
  <p className="font-medium text-foreground">{v.name}</p>
  <p className="text-xs text-muted-foreground">{v.loc}</p>
  </td>
+ <td className="px-3 py-4 font-mono text-xs text-muted-foreground">{v.farmerId}</td>
  <td className="px-3 py-4 font-medium">{v.loan}</td>
  <td className="px-3 py-4">
  <span className="inline-flex items-center gap-2">

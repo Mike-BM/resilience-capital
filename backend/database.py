@@ -26,6 +26,8 @@ class Vendor(Base):
     business_name = Column(String)
     phone = Column(String)
     mpesa_number = Column(String)
+    farmer_id = Column(String)
+    national_id = Column(String)
     lat = Column(Float)
     lon = Column(Float)
     county_id = Column(Integer, ForeignKey("counties.id"))

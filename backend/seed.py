@@ -23,6 +23,7 @@ def seed_data():
     james = Vendor(
         name="James Ochieng", business_name="Solar Solutions Turkana", 
         phone="+254700000001", mpesa_number="+254700000001",
+        farmer_id="FRM-78901", national_id="32001122",
         lat=3.119, lon=36.081, county_id=turkana.id,
         years_in_business=3.0, monthly_revenue=2500, shop_size_sqm=40
     )
@@ -30,6 +31,7 @@ def seed_data():
     amina = Vendor(
         name="Amina Hassan", business_name="Lake Basin Solar", 
         phone="+254700000002", mpesa_number="+254700000002",
+        farmer_id="FRM-78902", national_id="28114455",
         lat=-0.102, lon=34.761, county_id=kisumu.id,
         years_in_business=5.0, monthly_revenue=4000, shop_size_sqm=80
     )
@@ -37,6 +39,7 @@ def seed_data():
     declined_vendor = Vendor(
         name="Peter Njoroge", business_name="Nairobi Electronics", 
         phone="+254700000003", mpesa_number="+254700000003",
+        farmer_id="FRM-78903", national_id="11223344",
         lat=-1.292, lon=36.821, county_id=nairobi.id,
         years_in_business=0.5, monthly_revenue=300, shop_size_sqm=10
     )
