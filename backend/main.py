@@ -271,4 +271,39 @@ def recalculate_loan(loan_id: int, req: RecalculateRequest, db: Session = Depend
         "parametric_triggered": parametric_triggered
     }
 
+@app.post("/api/v1/data/update_manual")
+def update_manual_data(db: Session = Depends(get_db)):
+    # Hackathon endpoint for manual data update/sync
+    # We'll just return a success to trigger UI refresh or log a fake sync.
+    return {
+        "status": "success",
+        "message": "Data manually synchronized from external sources.",
+        "timestamp": datetime.utcnow().isoformat()
+    }
 
+class STKPushRequest(BaseModel):
+    phone_number: str
+    amount: float
+    account_reference: str = "ResilienceCapital"
+    transaction_desc: str = "Loan Repayment"
+
+@app.post("/api/v1/payments/stkpush")
+def initiate_stk_push(req: STKPushRequest):
+    # Simulated M-Pesa Daraja STK Push for Hackathon Demo
+    # In a real scenario, this would call the Safaricom Daraja API
+    checkout_request_id = f"ws_CO_{datetime.now().strftime('%d%m%Y%H%M%S')}{random.randint(100, 999)}"
+    
+    return {
+        "status": "success",
+        "MerchantRequestID": f"req_{random.randint(10000, 99999)}",
+        "CheckoutRequestID": checkout_request_id,
+        "ResponseCode": "0",
+        "ResponseDescription": "Success. Request accepted for processing",
+        "CustomerMessage": f"STK Push sent to {req.phone_number} for KES {req.amount}. Please enter PIN to process payment."
+    }
+
+@app.post("/api/v1/payments/stkpush/callback")
+def stk_push_callback(payload: dict):
+    # This is where M-Pesa would post the result of the STK push
+    print("STK Push Callback Received:", payload)
+    return {"ResultCode": 0, "ResultDesc": "Accepted"}

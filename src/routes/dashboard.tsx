@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Activity, ArrowDownRight, ArrowUpRight, Camera, CloudRain, Droplets, ExternalLink, Sun, TrendingUp, Users } from "lucide-react";
+import { Activity, ArrowDownRight, ArrowUpRight, Camera, CloudRain, Droplets, ExternalLink, Sun, TrendingUp, Users, RefreshCw, Smartphone } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { SiteFooter, SiteNav } from "@/components/SiteNav";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/dashboard")({
  head: () => ({
@@ -34,6 +35,7 @@ function Dashboard() {
  <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 font-medium text-muted-foreground">
  NASA POWER · OpenWeatherMap
  </span>
+ <HackathonControls />
  </div>
  </div>
  </div>
@@ -105,6 +107,77 @@ function Dashboard() {
  </div>
  );
 }
+
+function HackathonControls() {
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [isPushing, setIsPushing] = useState(false);
+
+  const handleManualSync = async () => {
+    setIsSyncing(true);
+    toast.info("Starting manual data synchronization...");
+    try {
+      const res = await fetch("http://localhost:8000/api/v1/data/update_manual", { method: "POST" });
+      const data = await res.json();
+      if (data.status === "success") {
+        toast.success(data.message || "Data synchronized successfully!");
+      } else {
+        toast.error("Failed to sync data.");
+      }
+    } catch (err) {
+      toast.error("Network error. Backend might be offline.");
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const handleSTKPush = async () => {
+    const phone = window.prompt("Enter phone number for M-Pesa STK Push (e.g. 254700000000):", "254700000000");
+    if (!phone) return;
+    const amount = window.prompt("Enter amount to pay (KES):", "1000");
+    if (!amount) return;
+    
+    setIsPushing(true);
+    toast.loading("Initiating STK Push...", { id: "stk-push" });
+    try {
+      const res = await fetch("http://localhost:8000/api/v1/payments/stkpush", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone_number: phone, amount: parseFloat(amount) })
+      });
+      const data = await res.json();
+      if (data.status === "success") {
+        toast.success(data.CustomerMessage || "STK Push sent successfully! Check your phone.", { id: "stk-push" });
+      } else {
+        toast.error("Failed to initiate STK Push.", { id: "stk-push" });
+      }
+    } catch (err) {
+      toast.error("Network error while trying to send STK Push.", { id: "stk-push" });
+    } finally {
+      setIsPushing(false);
+    }
+  };
+
+  return (
+    <>
+      <button 
+        onClick={handleManualSync}
+        disabled={isSyncing}
+        className="ml-2 inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1 font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+      >
+        <RefreshCw className={`h-3.5 w-3.5 ${isSyncing ? "animate-spin" : ""}`} /> 
+        {isSyncing ? "Syncing..." : "Manual Sync"}
+      </button>
+      <button 
+        onClick={handleSTKPush}
+        disabled={isPushing}
+        className="inline-flex items-center gap-1.5 rounded-md bg-[color:var(--success)] px-3 py-1 font-medium text-white hover:bg-[color:var(--success)]/90 disabled:opacity-50"
+      >
+        <Smartphone className="h-3.5 w-3.5" /> 
+        {isPushing ? "Sending..." : "Test STK Push"}
+      </button>
+    </>
+  );
+ }
 
 function Kpi({ label, value, delta, trend, icon: Icon, good }: { label: string; value: string; delta: string; trend: "up" | "down"; icon: any; good?: boolean }) {
  const arrow = trend === "up" ? <ArrowUpRight className="h-3.5 w-3.5" /> : <ArrowDownRight className="h-3.5 w-3.5" />;
