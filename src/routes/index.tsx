@@ -1,319 +1,407 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Cloud, Coins, Shield, Sparkles, Sun, TrendingUp, Zap } from "lucide-react";
+﻿import { createFileRoute } from "@tanstack/react-router";
+import {
+  ArrowRight,
+  BarChart3,
+  BriefcaseBusiness,
+  CheckCircle2,
+  Code2,
+  Database,
+  Download,
+  GraduationCap,
+  Mail,
+  MapPin,
+  Sparkles,
+  TrendingUp,
+} from "lucide-react";
 import { SiteFooter, SiteNav } from "@/components/SiteNav";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Resilience Capital — Lending against climate" },
-      { name: "description", content: "Adaptive micro-loans for off-grid solar vendors. We don't ignore drought risk — we model it, and turn it into our edge." },
-      { property: "og:title", content: "Resilience Capital" },
-      { property: "og:description", content: "Climate-adaptive micro-lending for the 2.3M vendors banks decline." },
+      { title: "Brian Muema | Data Analyst | Data Science" },
+      { name: "description", content: "Brian Muema is a data analyst and data science professional focused on statistics, Python, SQL, data visualization, and business problem solving." },
+      { property: "og:title", content: "Brian Muema | Data Analyst | Data Science" },
+      { property: "og:description", content: "Turning data into insights, insights into decisions." },
     ],
   }),
   component: Index,
 });
 
+const skillGroups = [
+  {
+    title: "Data Analysis",
+    items: ["Python", "Pandas", "NumPy", "Excel", "R", "SPSS", "STATA"],
+  },
+  {
+    title: "Data Visualization",
+    items: ["Power BI", "Tableau", "Matplotlib", "Plotly", "Seaborn", "Dashboards"],
+  },
+  {
+    title: "Data Management",
+    items: ["SQL", "PostgreSQL", "Data Cleaning", "ETL", "Data Modeling", "Reporting"],
+  },
+  {
+    title: "Data Science",
+    items: ["Statistics", "Machine Learning", "Forecasting", "Predictive Modeling", "Experimentation", "A/B Testing"],
+  },
+];
+
+const projectCards = [
+  {
+    title: "Sales Performance Dashboard",
+    summary: "Built a KPI dashboard to uncover revenue gaps, seasonality, and channel profitability for operational teams.",
+    tags: ["Power BI", "SQL", "Python"],
+    impact: "Improved decision speed and highlighted underperforming segments in one review cycle.",
+  },
+  {
+    title: "Customer Retention Analysis",
+    summary: "Analyzed churn indicators and segment trends using statistical methods and data storytelling to guide retention strategy.",
+    tags: ["Python", "Pandas", "Statistics"],
+    impact: "Identified recurring churn behaviors and ranked risk drivers for business action.",
+  },
+  {
+    title: "Market Insight Tracker",
+    summary: "Created a reusable analytics workflow to monitor market movement, performance signals, and business opportunities.",
+    tags: ["Tableau", "Excel", "Forecasting"],
+    impact: "Turned fragmented data into a clear, decision-ready reporting view.",
+  },
+];
+
+const insights = [
+  {
+    title: "Business Metrics That Matter",
+    body: "Simple scorecards often hide the real signal. I focus on the metrics that reflect business outcomes, not just activity.",
+  },
+  {
+    title: "Storytelling Through Data",
+    body: "Clear visual narratives help teams move from raw numbers to action. That is where analytical work becomes valuable.",
+  },
+  {
+    title: "Decision-Making with Evidence",
+    body: "I translate analysis into measurable recommendations, making technical insight useful to both analysts and leaders.",
+  },
+];
+
+const experience = [
+  {
+    role: "Data Analyst / Data Science Enthusiast",
+    company: "Independent Projects & Practice",
+    period: "2023 — Present",
+    bullets: [
+      "Built dashboards and analytical workflows using Python, SQL, and visualization tools to solve real-world business problems.",
+      "Applied exploratory analysis, statistics, and predictive thinking to uncover patterns, monitor trends, and inform decisions.",
+      "Turned messy data into clear, actionable narratives for technical and non-technical audiences.",
+    ],
+  },
+  {
+    role: "Analytical & Research Experience",
+    company: "Economics & Statistics Foundation",
+    period: "2019 — 2023",
+    bullets: [
+      "Developed a strong analytical base in quantitative reasoning, inference, and economic and statistical problem solving.",
+      "Used data-driven methods to interpret patterns, compare outcomes, and support evidence-based conclusions.",
+      "Strengthened technical skills in data analysis, reporting, and interpretation across applied study contexts.",
+    ],
+  },
+];
+
+const education = [
+  {
+    title: "Economics & Statistics",
+    school: "Academic foundation",
+    detail: "Focused on quantitative analysis, research methods, and evidence-based decision-making.",
+  },
+  {
+    title: "Data Analytics & Data Science Practice",
+    school: "Self-directed learning & applied projects",
+    detail: "Continuous development in Python, SQL, visualization, and machine learning for practical problem solving.",
+  },
+];
+
 function Index() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteNav />
-      <Hero />
-      <Problem />
-      <Solution />
-      <Moat />
-      <Traction />
-      <CTA />
+      <main>
+        <section id="home" className="relative overflow-hidden">
+          <div className="absolute inset-0 -z-10 bg-[image:var(--gradient-hero)] opacity-95" />
+          <div className="absolute inset-0 -z-10 [background-image:radial-gradient(circle_at_15%_20%,oklch(0.78_0.16_215/0.45),transparent_38%),radial-gradient(circle_at_85%_62%,oklch(0.68_0.12_190/0.35),transparent_40%)]" />
+          <div className="mx-auto grid max-w-7xl gap-14 px-6 py-20 md:grid-cols-[1.15fr_0.85fr] md:py-28">
+            <div className="text-primary-foreground">
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-white/90 backdrop-blur-sm">
+                <Sparkles className="h-3.5 w-3.5" /> Data Analyst | Data Science
+              </span>
+              <h1 className="mt-6 max-w-xl text-5xl font-semibold leading-[1.05] tracking-tight md:text-7xl">
+                Turning Data Into Insights, <span className="text-[oklch(0.88_0.12_200)]">Insights Into Decisions.</span>
+              </h1>
+              <p className="mt-6 max-w-xl text-lg text-white/80">
+                I analyze data, uncover patterns, and build data-driven solutions using statistics, Python, SQL, data visualization, and machine learning.
+              </p>
+              <div className="mt-10 flex flex-wrap gap-3">
+                <a
+                  href="#projects"
+                  className="group inline-flex items-center gap-2 rounded-md bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground shadow-[var(--shadow-glow)] transition-transform hover:-translate-y-0.5"
+                >
+                  View My Projects
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </a>
+                <a
+                  href="/Brian-Muema-CV.pdf"
+                  download
+                  className="inline-flex items-center gap-2 rounded-md border border-white/25 bg-white/5 px-5 py-3 text-sm font-medium text-white backdrop-blur transition-colors hover:bg-white/10"
+                >
+                  <Download className="h-4 w-4" />
+                  Download CV
+                </a>
+              </div>
+              <div className="mt-8 flex flex-wrap items-center gap-3 text-xs font-medium uppercase tracking-[0.16em] text-white/75">
+                {['Python', 'SQL', 'Statistics', 'Power BI', 'Machine Learning'].map((item) => (
+                  <span key={item} className="rounded-full border border-white/15 bg-white/5 px-2.5 py-1.5">
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="absolute -inset-4 rounded-[2rem] bg-white/10 blur-3xl" aria-hidden="true" />
+              <div className="relative rounded-[1.75rem] border border-white/20 bg-white/95 p-6 shadow-2xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Portfolio snapshot</p>
+                    <p className="mt-2 text-lg font-semibold text-foreground">Q1 analytics overview</p>
+                  </div>
+                  <span className="rounded-full bg-[color:var(--success)]/10 px-2.5 py-1 text-xs font-medium text-[color:var(--success)]">Up 18%</span>
+                </div>
+
+                <div className="mt-8 flex h-36 items-end gap-3">
+                  {[38, 56, 68, 80, 62, 88, 96].map((height, index) => (
+                    <div key={height} className="flex flex-1 flex-col items-center gap-2">
+                      <div
+                        className={`w-full rounded-t-xl ${index % 2 === 0 ? 'bg-[oklch(0.66_0.14_215)]' : 'bg-[oklch(0.54_0.12_200)]'}`}
+                        style={{ height: `${height}%` }}
+                      />
+                      <span className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'][index]}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                  <MetricCard label="Projects" value="12+" />
+                  <MetricCard label="Insights" value="95%" />
+                  <MetricCard label="Focus" value="Data" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="about" className="mx-auto max-w-7xl px-6 py-20 md:py-24">
+          <div className="grid gap-10 md:grid-cols-[1.1fr_0.9fr] md:items-center">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">About Me</p>
+              <h2 className="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">Turning analytical thinking into practical business value.</h2>
+              <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
+                I have a foundation in Economics and Statistics and I am focused on developing practical expertise in Data Analytics and Data Science. My work is grounded in statistical thinking, data analysis, and clear communication.
+              </p>
+              <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
+                I enjoy uncovering patterns, building useful visualizations, and turning complex data into actionable insight. Python, SQL, and machine learning are part of my toolkit, but business problem solving remains at the center of everything I do.
+              </p>
+            </div>
+
+            <div className="rounded-3xl border border-border bg-card p-8 shadow-sm">
+              <div className="flex items-center gap-3 text-sm font-medium text-muted-foreground">
+                <MapPin className="h-4 w-4 text-primary" />
+                Data professional with a statistical foundation
+              </div>
+              <div className="mt-8 flex flex-col gap-4">
+                {[
+                  "Economics & Statistics",
+                  "Data Analytics",
+                  "Data Science",
+                ].map((step, index) => (
+                  <div key={step} className="flex items-center gap-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[image:var(--gradient-hero)] text-xs font-semibold text-primary-foreground">
+                      {index + 1}
+                    </div>
+                    <div className="rounded-xl border border-border bg-secondary/40 px-4 py-3 text-sm font-medium text-foreground">
+                      {step}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="skills" className="border-y border-border bg-secondary/35">
+          <div className="mx-auto max-w-7xl px-6 py-20 md:py-24">
+            <div className="max-w-2xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Skills</p>
+              <h2 className="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">Analytical skills built for real-world problems.</h2>
+            </div>
+
+            <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+              {skillGroups.map((group) => (
+                <div key={group.title} className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+                  <div className="mb-5 flex items-center gap-3">
+                    <div className="grid h-10 w-10 place-items-center rounded-lg bg-[image:var(--gradient-hero)] text-primary-foreground">
+                      {group.title.includes("Visualization") ? <BarChart3 className="h-5 w-5" /> : group.title.includes("Data Management") ? <Database className="h-5 w-5" /> : group.title.includes("Science") ? <TrendingUp className="h-5 w-5" /> : <Code2 className="h-5 w-5" />}
+                    </div>
+                    <h3 className="text-lg font-semibold text-foreground">{group.title}</h3>
+                  </div>
+                  <ul className="space-y-3 text-sm text-muted-foreground">
+                    {group.items.map((item) => (
+                      <li key={item} className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-[color:var(--success)]" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="projects" className="mx-auto max-w-7xl px-6 py-20 md:py-24">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Projects</p>
+              <h2 className="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">Selected work.</h2>
+            </div>
+            <a href="#contact" className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:opacity-90">
+              Let's connect
+              <ArrowRight className="h-4 w-4" />
+            </a>
+          </div>
+
+          <div className="mt-12 grid gap-6 lg:grid-cols-3">
+            {projectCards.map((project) => (
+              <article key={project.title} className="group rounded-3xl border border-border bg-card p-6 shadow-sm transition-transform hover:-translate-y-1">
+                <div className="mb-4 flex flex-wrap gap-2">
+                  {project.tags.map((tag) => (
+                    <span key={tag} className="rounded-full border border-border bg-secondary/60 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <h3 className="text-2xl font-semibold text-foreground">{project.title}</h3>
+                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{project.summary}</p>
+                <div className="mt-6 rounded-2xl border border-dashed border-border bg-secondary/30 p-4 text-sm text-foreground">
+                  <span className="font-semibold">Impact:</span> {project.impact}
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section id="insights" className="border-y border-border bg-secondary/35">
+          <div className="mx-auto max-w-7xl px-6 py-20 md:py-24">
+            <div className="max-w-2xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Insights</p>
+              <h2 className="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">What drives my approach.</h2>
+            </div>
+
+            <div className="mt-12 grid gap-6 md:grid-cols-3">
+              {insights.map((insight) => (
+                <div key={insight.title} className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-[image:var(--gradient-hero)] text-primary-foreground">
+                    <TrendingUp className="h-5 w-5" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground">{insight.title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{insight.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="experience" className="mx-auto max-w-7xl px-6 py-20 md:py-24">
+          <div className="max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Experience</p>
+            <h2 className="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">Analytical experience with a strong foundation.</h2>
+          </div>
+
+          <div className="mt-12 space-y-6">
+            {experience.map((item) => (
+              <div key={item.role} className="rounded-3xl border border-border bg-card p-6 shadow-sm md:p-8">
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <p className="text-xl font-semibold text-foreground">{item.role}</p>
+                    <p className="mt-1 text-sm font-medium text-primary">{item.company}</p>
+                  </div>
+                  <span className="text-sm font-medium text-muted-foreground">{item.period}</span>
+                </div>
+                <ul className="mt-5 space-y-3 text-sm leading-relaxed text-muted-foreground">
+                  {item.bullets.map((bullet) => (
+                    <li key={bullet} className="flex gap-3">
+                      <span className="mt-1.5 inline-block h-2 w-2 rounded-full bg-primary" />
+                      <span>{bullet}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section id="education" className="border-y border-border bg-secondary/35">
+          <div className="mx-auto max-w-7xl px-6 py-20 md:py-24">
+            <div className="max-w-2xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Education</p>
+              <h2 className="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">Academic base and continuous learning.</h2>
+            </div>
+
+            <div className="mt-12 grid gap-6 md:grid-cols-2">
+              {education.map((item) => (
+                <div key={item.title} className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[image:var(--gradient-hero)] text-primary-foreground">
+                    <GraduationCap className="h-5 w-5" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground">{item.title}</h3>
+                  <p className="mt-2 text-sm font-medium text-primary">{item.school}</p>
+                  <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{item.detail}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="contact" className="mx-auto max-w-7xl px-6 py-20 md:py-24">
+          <div className="rounded-[2rem] border border-border bg-[image:var(--gradient-hero)] p-8 text-primary-foreground shadow-[var(--shadow-soft)] md:p-12">
+            <div className="grid gap-8 md:grid-cols-[1.2fr_0.8fr] md:items-center">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/70">Let's Connect</p>
+                <h2 className="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">Open to data opportunities and collaborations.</h2>
+                <p className="mt-4 max-w-xl text-base text-white/80">
+                  I am interested in data analysis, data science, business insight work, and meaningful collaborative projects that turn information into impact.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white/20 bg-white/10 p-5 backdrop-blur-sm">
+                <a href="mailto:brian.muema@example.com" className="flex items-center gap-3 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-white/10">
+                  <Mail className="h-4 w-4" />
+                  brian.muema@example.com
+                </a>
+                <div className="mt-4 flex items-center gap-3 text-sm text-white/80">
+                  <BriefcaseBusiness className="h-4 w-4" />
+                  Available for data-focused roles and collaborations
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
       <SiteFooter />
     </div>
   );
 }
 
-function Hero() {
+function MetricCard({ label, value }: { label: string; value: string }) {
   return (
-    <section className="relative overflow-hidden">
-      <div className="absolute inset-0 -z-10 bg-[image:var(--gradient-hero)] opacity-95" />
-      <div className="absolute inset-0 -z-10 [background-image:radial-gradient(circle_at_20%_20%,oklch(0.78_0.16_75/0.35),transparent_40%),radial-gradient(circle_at_80%_60%,oklch(0.55_0.15_155/0.3),transparent_45%)]" />
-      <div className="mx-auto grid max-w-7xl gap-16 px-6 py-24 md:grid-cols-[1.2fr_1fr] md:py-32">
-        <div className="text-primary-foreground">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium backdrop-blur">
-            <Sparkles className="h-3 w-3" /> Climate-adaptive micro-lending
-          </span>
-          <h1 className="mt-6 text-balance text-5xl font-semibold leading-[1.05] tracking-tight md:text-7xl">
-            We don't lend money.<br />
-            <span className="text-[oklch(0.88_0.12_75)]">We lend against climate.</span>
-          </h1>
-          <p className="mt-6 max-w-xl text-lg text-white/80">
-            Banks decline 78% of off-grid solar vendors because they live in
-            "drought zones." We approve them — with monthly payments that flow
-            with the rain.
-          </p>
-          <div className="mt-10 flex flex-wrap gap-3">
-            <Link
-              to="/compare"
-              className="group inline-flex items-center gap-2 rounded-md bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground shadow-[var(--shadow-glow)] transition-transform hover:-translate-y-0.5"
-            >
-              See the comparison
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-            <Link
-              to="/dashboard"
-              className="inline-flex items-center gap-2 rounded-md border border-white/25 bg-white/5 px-5 py-3 text-sm font-medium text-white backdrop-blur transition-colors hover:bg-white/10"
-            >
-              Lender dashboard
-            </Link>
-          </div>
-          <dl className="mt-12 grid max-w-lg grid-cols-3 gap-6 text-white">
-            <Stat value="96%" label="Vendor survival" />
-            <Stat value="<5%" label="Default rate" />
-            <Stat value="3 min" label="To disbursement" />
-          </dl>
-        </div>
-        <HeroCard />
-      </div>
-    </section>
-  );
-}
-
-function Stat({ value, label }: { value: string; label: string }) {
-  return (
-    <div>
-      <dt className="text-3xl font-semibold tracking-tight">{value}</dt>
-      <dd className="mt-1 text-xs uppercase tracking-wider text-white/60">{label}</dd>
+    <div className="rounded-2xl border border-border bg-secondary/40 p-3">
+      <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{label}</p>
+      <p className="mt-2 text-xl font-semibold text-foreground">{value}</p>
     </div>
-  );
-}
-
-function HeroCard() {
-  return (
-    <div className="relative">
-      <div className="absolute -inset-4 rounded-3xl bg-white/10 blur-2xl" aria-hidden />
-      <div className="relative rounded-2xl border border-white/15 bg-white/95 p-6 shadow-2xl">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="grid h-11 w-11 place-items-center rounded-full bg-[image:var(--gradient-sun)] text-accent-foreground">
-              <Sun className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-foreground">James Ochieng</p>
-              <p className="text-xs text-muted-foreground">Turkana, Kenya · Solar vendor</p>
-            </div>
-          </div>
-          <span className="rounded-full bg-[color:var(--success)]/10 px-2.5 py-1 text-xs font-medium text-[color:var(--success)]">
-            Approved
-          </span>
-        </div>
-        <div className="mt-5 grid grid-cols-2 gap-3 text-xs">
-          <Mini label="Loan" value="$2,000" />
-          <Mini label="Resilience Score" value="82 / 100" />
-          <Mini label="Climate window" value="90-day forecast" />
-          <Mini label="Disbursement" value="M-Pesa · 3 min" />
-        </div>
-        <div className="mt-5 rounded-xl border border-border bg-secondary/40 p-4">
-          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Adaptive schedule</p>
-          <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
-            <Schedule label="Jan–Feb" amount="$120" tone="discount" note="−30% drought" />
-            <Schedule label="Mar–May" amount="$280" tone="premium" note="+40% rainy" />
-            <Schedule label="Jun–Dec" amount="$200" tone="base" note="baseline" />
-          </div>
-          <p className="mt-4 text-xs text-muted-foreground">Total repayment: <span className="font-semibold text-foreground">$2,400</span> — identical to a flat loan.</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Mini({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-lg border border-border bg-background p-3">
-      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
-      <p className="mt-1 text-sm font-semibold text-foreground">{value}</p>
-    </div>
-  );
-}
-
-function Schedule({ label, amount, tone, note }: { label: string; amount: string; tone: "discount" | "premium" | "base"; note: string }) {
-  const styles =
-    tone === "discount"
-      ? "bg-[color:var(--success)]/10 text-[color:var(--success)] border-[color:var(--success)]/30"
-      : tone === "premium"
-        ? "bg-[color:var(--warning)]/10 text-[oklch(0.5_0.15_60)] border-[color:var(--warning)]/30"
-        : "bg-muted text-foreground border-border";
-  return (
-    <div className={`rounded-md border px-2 py-2 ${styles}`}>
-      <p className="text-[10px] font-medium uppercase tracking-wider opacity-80">{label}</p>
-      <p className="mt-0.5 text-sm font-semibold">{amount}</p>
-      <p className="text-[10px] opacity-75">{note}</p>
-    </div>
-  );
-}
-
-function Problem() {
-  return (
-    <section className="border-y border-border bg-secondary/40">
-      <div className="mx-auto grid max-w-7xl gap-12 px-6 py-20 md:grid-cols-2">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">The Problem</p>
-          <h2 className="mt-3 text-balance text-4xl font-semibold tracking-tight md:text-5xl">
-            When loans are flat, climate breaks businesses.
-          </h2>
-          <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-            2.3 million off-grid solar vendors in Africa need inventory financing.
-            Banks decline 78% because they live in "drought zones." The result isn't
-            just vendor failure — it's <span className="font-semibold text-foreground">energy poverty</span>.
-            Kerosene burns. Children study by smoke. Clinics go dark.
-          </p>
-          <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-            The flat monthly repayment model is fundamentally broken for
-            climate-dependent cash flows.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <Stat2 value="78%" label="Solar vendors declined by banks" />
-          <Stat2 value="60%" label="Industry vendor survival rate" />
-          <Stat2 value="18%" label="MFI default rate" />
-          <Stat2 value="600M" label="Africans without grid power" />
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Stat2({ value, label }: { value: string; label: string }) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-      <p className="text-4xl font-semibold tracking-tight text-foreground">{value}</p>
-      <p className="mt-2 text-sm text-muted-foreground">{label}</p>
-    </div>
-  );
-}
-
-function Solution() {
-  return (
-    <section className="mx-auto max-w-7xl px-6 py-24">
-      <div className="max-w-3xl">
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">The Solution</p>
-        <h2 className="mt-3 text-balance text-4xl font-semibold tracking-tight md:text-5xl">
-          The Resilience Pricing Algorithm.
-        </h2>
-        <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-          We model 90-day drought forecasts using satellite rainfall, soil moisture,
-          vegetation index, and seasonal patterns — then auto-adjust monthly
-          payments to match real cash flow.
-        </p>
-      </div>
-      <div className="mt-12 grid gap-5 md:grid-cols-3">
-        <Pill tone="success" title="Critical drought months" delta="−30%" body="Payments drop when cash flow does. Vendors keep stock instead of defaulting." />
-        <Pill tone="warning" title="Rainy season premium" delta="+40%" body="Vendors pay more when demand surges. The total is identical to a flat loan." />
-        <Pill tone="base" title="Resilience score" delta="0–100" body="Satellite + mobile money + community references. Built for the credit-invisible." />
-      </div>
-      <div className="mt-10 rounded-2xl border border-border bg-[image:var(--gradient-earth)] p-8 shadow-[var(--shadow-soft)]">
-        <p className="text-sm font-medium uppercase tracking-wider text-muted-foreground">The unlock</p>
-        <p className="mt-2 text-2xl font-medium leading-snug text-foreground md:text-3xl">
-          "Drought is exactly when people need solar most."
-        </p>
-        <p className="mt-2 text-sm text-muted-foreground">— James Ochieng, vendor, Turkana</p>
-      </div>
-    </section>
-  );
-}
-
-function Pill({ tone, title, delta, body }: { tone: "success" | "warning" | "base"; title: string; delta: string; body: string }) {
-  const color =
-    tone === "success" ? "text-[color:var(--success)]" : tone === "warning" ? "text-[oklch(0.55_0.16_60)]" : "text-primary";
-  return (
-    <div className="rounded-2xl border border-border bg-card p-6 shadow-sm transition-transform hover:-translate-y-1">
-      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</p>
-      <p className={`mt-2 text-4xl font-semibold tracking-tight ${color}`}>{delta}</p>
-      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{body}</p>
-    </div>
-  );
-}
-
-const moatItems = [
-  { icon: TrendingUp, title: "Alternative data scoring", body: "Satellite imagery, M-Pesa flows, and community references replace credit bureaus." },
-  { icon: Cloud, title: "Adaptive repayment", body: "Climate-adjusted pricing — our core innovation. Same total, smarter cadence." },
-  { icon: Coins, title: "Carbon credit revenue", body: "Each financed panel earns $2–5/month in CO₂-avoided credits, paid to vendors." },
-  { icon: Shield, title: "Parametric insurance", body: "Auto $50–200 payout when drought index hits 80%. No claims process." },
-  { icon: Zap, title: "Tokenized portfolios", body: "Climate Resilience Bonds — packaged loan books for global ESG investors." },
-];
-
-function Moat() {
-  return (
-    <section className="border-t border-border bg-secondary/30">
-      <div className="mx-auto max-w-7xl px-6 py-24">
-        <div className="flex items-end justify-between gap-8">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">The Moat</p>
-            <h2 className="mt-3 text-balance text-4xl font-semibold tracking-tight md:text-5xl">Five layers deep.</h2>
-          </div>
-          <p className="hidden max-w-md text-sm text-muted-foreground md:block">
-            Defensibility isn't a feature. It's a stack. Each layer compounds the next.
-          </p>
-        </div>
-        <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-          {moatItems.map((m, i) => (
-            <div key={m.title} className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-transform hover:-translate-y-1">
-              <span className="absolute right-4 top-4 text-xs font-mono text-muted-foreground/60">0{i + 1}</span>
-              <div className="grid h-10 w-10 place-items-center rounded-lg bg-[image:var(--gradient-hero)] text-primary-foreground">
-                <m.icon className="h-5 w-5" />
-              </div>
-              <h3 className="mt-4 text-base font-semibold text-foreground">{m.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{m.body}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Traction() {
-  return (
-    <section className="mx-auto max-w-7xl px-6 py-24">
-      <div className="grid gap-12 md:grid-cols-2">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Impact per $100K deployed</p>
-          <h2 className="mt-3 text-balance text-4xl font-semibold tracking-tight md:text-5xl">
-            Better risk management. Period.
-          </h2>
-          <p className="mt-6 text-lg text-muted-foreground">
-            This isn't charity. Adaptive pricing produces a measurably better book
-            than any flat-rate MFI portfolio in the same region.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <Stat2 value="25,000" label="People gaining energy access" />
-          <Stat2 value="1,200t" label="CO₂ avoided per 1,000 panels" />
-          <Stat2 value="96%" label="Vendor survival rate" />
-          <Stat2 value="6%" label="Unit margin per loan" />
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function CTA() {
-  return (
-    <section className="px-6 pb-24">
-      <div className="mx-auto max-w-6xl overflow-hidden rounded-3xl bg-[image:var(--gradient-hero)] p-12 text-primary-foreground shadow-[var(--shadow-soft)] md:p-16">
-        <p className="text-xs font-semibold uppercase tracking-widest text-white/70">The Ask</p>
-        <h2 className="mt-3 text-balance text-4xl font-semibold tracking-tight md:text-5xl">
-          $50,000 for a 6-month Kenya pilot.
-        </h2>
-        <p className="mt-4 max-w-2xl text-lg text-white/80">
-          500 vendors. 2 MFI partnerships. A validated default-prediction model.
-          Then we package the book as a Climate Resilience Bond and scale.
-        </p>
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Link to="/compare" className="inline-flex items-center gap-2 rounded-md bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground shadow-[var(--shadow-glow)] transition-transform hover:-translate-y-0.5">
-            See the killer demo <ArrowRight className="h-4 w-4" />
-          </Link>
-          <Link to="/dashboard" className="inline-flex items-center gap-2 rounded-md border border-white/25 bg-white/5 px-5 py-3 text-sm font-medium text-white backdrop-blur hover:bg-white/10">
-            Open lender dashboard
-          </Link>
-        </div>
-      </div>
-    </section>
   );
 }

@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+﻿import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
@@ -77,14 +77,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Resilience Capital — Climate-Adaptive Micro-Lending" },
-      { name: "description", content: "Climate risk isn't a decline reason. It's our edge. Adaptive loans for off-grid solar vendors in drought-exposed regions." },
-      { name: "author", content: "Resilience Capital" },
-      { property: "og:title", content: "Resilience Capital" },
-      { property: "og:description", content: "We don't ignore climate risk. We model it." },
+      { title: "Brian Muema | Data Analyst | Data Science" },
+      { name: "description", content: "Brian Muema is a data analyst and data science professional focused on statistics, Python, SQL, data visualization, and business problem solving." },
+      { name: "author", content: "Brian Muema" },
+      { property: "og:title", content: "Brian Muema | Data Analyst | Data Science" },
+      { property: "og:description", content: "Turning data into insights, insights into decisions." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@ResilienceCap" },
     ],
     links: [
       {
@@ -118,7 +117,6 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
     </QueryClientProvider>
   );

@@ -1,22 +1,8 @@
-@import "tailwindcss" source(none);
+﻿@import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
-
-/*
- * Design system definition.
- *
- * The @theme inline block maps CSS custom properties to Tailwind utility
- * classes (e.g. --color-primary -> bg-primary, text-primary).
- *
- * The :root and .dark blocks define the actual color values using oklch.
- * All colors MUST use oklch format.
- *
- * To add a new semantic color:
- * 1. Add the variable to :root (light value) and .dark (dark value)
- * 2. Register it in @theme inline as --color-<name>: var(--<name>)
- */
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -66,55 +52,48 @@
 
 :root {
   --radius: 0.75rem;
-  /* Resilience Capital — earth + solar palette */
-  --background: oklch(0.985 0.01 90);
-  --foreground: oklch(0.22 0.04 150);
+  --background: oklch(0.985 0.01 220);
+  --foreground: oklch(0.22 0.04 220);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.04 150);
+  --card-foreground: oklch(0.22 0.04 220);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.04 150);
-  /* Deep savanna green */
-  --primary: oklch(0.42 0.11 155);
-  --primary-foreground: oklch(0.985 0.01 90);
-  /* Warm sand */
-  --secondary: oklch(0.94 0.03 75);
-  --secondary-foreground: oklch(0.28 0.05 150);
-  --muted: oklch(0.95 0.015 90);
-  --muted-foreground: oklch(0.48 0.03 140);
-  /* Solar amber */
-  --accent: oklch(0.78 0.16 75);
-  --accent-foreground: oklch(0.22 0.05 150);
-  --destructive: oklch(0.55 0.22 28);
+  --popover-foreground: oklch(0.22 0.04 220);
+  --primary: oklch(0.28 0.08 230);
+  --primary-foreground: oklch(0.985 0.01 220);
+  --secondary: oklch(0.96 0.02 220);
+  --secondary-foreground: oklch(0.25 0.05 220);
+  --muted: oklch(0.95 0.015 220);
+  --muted-foreground: oklch(0.49 0.03 220);
+  --accent: oklch(0.69 0.14 215);
+  --accent-foreground: oklch(0.22 0.04 220);
+  --destructive: oklch(0.58 0.2 22);
   --destructive-foreground: oklch(0.99 0 0);
-  --success: oklch(0.55 0.15 155);
+  --success: oklch(0.56 0.17 160);
   --success-foreground: oklch(0.99 0 0);
-  --warning: oklch(0.72 0.17 60);
-  --border: oklch(0.88 0.02 90);
-  --input: oklch(0.9 0.02 90);
-  --ring: oklch(0.55 0.13 155);
-  --chart-1: oklch(0.55 0.15 155);
-  --chart-2: oklch(0.72 0.17 60);
-  --chart-3: oklch(0.55 0.18 30);
-  --chart-4: oklch(0.6 0.12 200);
-  --chart-5: oklch(0.42 0.11 155);
-  --sidebar: oklch(0.97 0.015 90);
-  --sidebar-foreground: oklch(0.22 0.04 150);
-  --sidebar-primary: oklch(0.42 0.11 155);
+  --warning: oklch(0.74 0.17 60);
+  --border: oklch(0.9 0.02 220);
+  --input: oklch(0.9 0.02 220);
+  --ring: oklch(0.52 0.12 230);
+  --chart-1: oklch(0.54 0.14 230);
+  --chart-2: oklch(0.69 0.14 215);
+  --chart-3: oklch(0.58 0.16 180);
+  --chart-4: oklch(0.66 0.13 270);
+  --chart-5: oklch(0.45 0.09 200);
+  --sidebar: oklch(0.97 0.015 220);
+  --sidebar-foreground: oklch(0.22 0.04 220);
+  --sidebar-primary: oklch(0.28 0.08 230);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.94 0.03 75);
-  --sidebar-accent-foreground: oklch(0.28 0.05 150);
-  --sidebar-border: oklch(0.88 0.02 90);
-  --sidebar-ring: oklch(0.55 0.13 155);
+  --sidebar-accent: oklch(0.96 0.02 220);
+  --sidebar-accent-foreground: oklch(0.25 0.05 220);
+  --sidebar-border: oklch(0.9 0.02 220);
+  --sidebar-ring: oklch(0.52 0.12 230);
 
-  --gradient-hero: linear-gradient(135deg, oklch(0.42 0.11 155) 0%, oklch(0.32 0.08 165) 60%, oklch(0.55 0.14 75) 100%);
-  --gradient-sun: linear-gradient(135deg, oklch(0.78 0.16 75), oklch(0.68 0.18 45));
-  --gradient-earth: linear-gradient(180deg, oklch(0.985 0.01 90), oklch(0.94 0.03 75));
-  --shadow-soft: 0 10px 30px -12px oklch(0.42 0.11 155 / 0.25);
-  --shadow-glow: 0 0 40px -8px oklch(0.78 0.16 75 / 0.55);
+  --gradient-hero: linear-gradient(135deg, oklch(0.14 0.08 235) 0%, oklch(0.21 0.07 225) 40%, oklch(0.46 0.12 210) 100%);
+  --shadow-soft: 0 10px 30px -12px oklch(0.2 0.08 230 / 0.25);
+  --shadow-glow: 0 0 40px -8px oklch(0.69 0.14 215 / 0.45);
 }
 
 .dark {
-  /* Dark mode unused in demo, kept for safety */
   --background: oklch(0.129 0.042 264.695);
   --foreground: oklch(0.984 0.003 247.858);
   --card: oklch(0.208 0.042 265.755);
@@ -154,8 +133,13 @@
     border-color: var(--color-border);
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: "Inter", "Segoe UI", sans-serif;
   }
 }
